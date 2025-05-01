@@ -25,8 +25,8 @@ exports.newSocialTradingFunctionLibrariesSocialEntitiesStorage = function () {
 
         async function saveSocialEntityAsync(resolve, reject) {
             /*
-            Each Social Entity must have a Storage Container so that we can here
-            use it to save content on it. 
+            Each Social Entity must have a Storage Container so that we can store here
+            Use it to save content on it. 
             */
             /*
     Determine the Social Entity and Storage
@@ -39,7 +39,7 @@ exports.newSocialTradingFunctionLibrariesSocialEntitiesStorage = function () {
 
             const parsedProfileData = JSON.parse(profileMessage.profileData);
             
-            // If both IDs exist, prioritize the bot
+            // If both IDs exist, prioritise the bot
             if (profileMessage.originSocialPersonaId !== undefined && profileMessage.originSocialTradingBotId !== undefined) {
                 let personaId = profileMessage.originSocialPersonaId;
                 let botId = profileMessage.originSocialTradingBotId;
@@ -59,7 +59,7 @@ exports.newSocialTradingFunctionLibrariesSocialEntitiesStorage = function () {
                     });
                 }
             } 
-            // If only the Persona ID is given, use User-Profile path
+            // If only the Persona ID is given, use the User-Profile path
             else if (profileMessage.originSocialPersonaId !== undefined) {
                 let personaId = profileMessage.originSocialPersonaId;
                 socialEntity = SA.projects.socialTrading.globals.memory.maps.SOCIAL_PERSONAS_BY_ID.get(personaId);
@@ -239,7 +239,7 @@ exports.newSocialTradingFunctionLibrariesSocialEntitiesStorage = function () {
             if (storageEntity === undefined) {
                 let response = {
                     result: 'Error',
-                    message: 'Cannot Save Social Entity Profile Because Social Entity is Undefined'
+                    message: 'Cannot save Social Entity Profile because Social Entity is Undefined'
                 }
                 resolve(response)
                 return
@@ -283,21 +283,20 @@ exports.newSocialTradingFunctionLibrariesSocialEntitiesStorage = function () {
                 /*
                 We are going to load this file from the Storage Containers defined.
                 We are going to try to read it first from the first Storage container
-                and if it is not possible we will try with the next ones.
+                and if it is not possible, we will try with the next ones.
                 */
                 
 
-                switch (storageContainer.parentNode.type) {
-                    case 'Github Storage': {
-                        await SA.projects.openStorage.utilities.githubStorage.loadFile(fileName, filePath, storageContainer)
+                try {
+                    const storageClient = SA.projects.openStorage.utilities.storageFactory.getStorageClient(storageContainer.parentNode.type)
+                    if(storageClient !== undefined) {
+                        storageClient.loadFile(fileName, filePath, storageContainer)
                             .then(onFileLoaded)
                             .catch(onFileNotLoaded)
-                        break
                     }
-                    case 'Superalgos Storage': {
-                        // TODO Build the Superalgos Storage Provider
-                        break
-                    }
+                } catch (err) {
+                    reject(err)
+                    
                 }
 
                 function onFileLoaded(fileData) {
